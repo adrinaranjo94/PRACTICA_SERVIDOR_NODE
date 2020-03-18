@@ -5,6 +5,13 @@ const { check, validationResult } = require("express-validator");
 const router = express.Router();
 const User = mongoose.model("User");
 
+const path = require("path");
+const auth = require("http-auth");
+
+const basic = auth.basic({
+  file: path.join(__dirname, "../users.htpasswd")
+});
+
 router.get("/", (req, res) => {
   res.render("form", { title: "Registration form" });
 });
@@ -45,5 +52,15 @@ router.post(
     }
   }
 );
+
+router.get("/registrations", (req, res) => {
+  User.find()
+    .then(users => {
+      res.render("index", { title: "Listing registrations", users });
+    })
+    .catch(() => {
+      res.send("Sorry! Something went wrong.");
+    });
+});
 
 module.exports = router;
