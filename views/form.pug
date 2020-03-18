@@ -1,12 +1,19 @@
 extends layout
 
 block content
+  -data = data || {}
+
+  if errors
+    ul
+      for error in errors
+        li= error.msg
   form(action="." method="POST")
     label(for="name") Name:
     input(
       type="text"
       id="name"
       name="name"
+      value=data.name
     )
 
     label(for="email") Email:
@@ -14,6 +21,7 @@ block content
       type="email"
       id="email"
       name="email"
+      value=data.email
     )
 
     label(for="password") Password:
@@ -21,6 +29,7 @@ block content
       type="password"
       id="password"
       name="password"
+      value=data.password
     )
 
     input(type="submit" value="Submit")
