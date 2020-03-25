@@ -11,11 +11,11 @@
 
 En caso de tenerlo instalado comprobaremos la versión de cada uno:
 
-```
+```bash
 node -v
 ```
 
-```
+```bash
 npm -v
 ```
 
@@ -23,7 +23,7 @@ npm -v
 
 Para comprobar su versión:
 
-```
+```bash
 mongo --version
 ```
 
@@ -33,7 +33,7 @@ Usaremos mongodb de manera local. Por lo que instalaremos el programa MongoDB Co
 
 Para inicializarlo:
 
-```
+```bash
 mongod
 ```
 
@@ -43,7 +43,7 @@ Despúes entraremos a MongoDB Compass y nos conectaremos a `localhost` y al puer
 
 Crearemos una carpeta llamada `servidor-node`. Desde ella lanzaremos el siguiente comando desde el terminal:
 
-```
+```bash
 npm init -y
 ```
 
@@ -53,7 +53,7 @@ De esta manera generará un `package.json` de manera automática.
 
 Express es el framework que usaremos para la parte de backend de la mano de Node.js. Es el más popular de todos los frameworks dentro de Node.js.
 
-```
+```bash
 //Manera tradicional
 npm install express
 
@@ -65,7 +65,7 @@ npm i express
 
 Esta herramienta nos permitirá reiniciar la aplicación cada vez que se detecte algun cambio en los archivos. Por lo que lo añadiremos en las dependencias de desarrollo para que no se use en producción
 
-```
+```bash
 npm i --save-dev nodemon
 ```
 
@@ -75,7 +75,7 @@ Esto generará `dev-dependencies` en el `package.json`
 
 Crearemos dentro del proyecto la siguiente estructura:
 
-```
+```console
 .
 ├── app.js
 ├── node_modules (Se generará automáticamente)
@@ -91,12 +91,12 @@ Crearemos dentro del proyecto la siguiente estructura:
 
 Dentro de este archivo crearemos el siguiente contenido:
 
-```
-const express = require('express');
-const routes = require('./routes/index');
+```js
+const express = require("express");
+const routes = require("./routes/index");
 
 const app = express();
-app.use('/', routes);
+app.use("/", routes);
 
 module.exports = app;
 ```
@@ -111,8 +111,8 @@ Exportaremos el objeto `app` para usarlo en el siguiente fichero.
 
 Importaremos app y lanzaremos la aplicación para que escuche en el puerto 3000
 
-```
-const app = require('./app');
+```js
+const app = require("./app");
 
 const server = app.listen(3000, () => {
   console.log(`Express is running on port ${server.address().port}`);
@@ -123,13 +123,13 @@ const server = app.listen(3000, () => {
 
 En este fichero crearemos las rutas con sus funciones a las que se tendrá acceso desde el navegador.
 
-```
-const express = require('express');
+```js
+const express = require("express");
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  res.send('It works!');
+router.get("/", (req, res) => {
+  res.send("It works!");
 });
 
 module.exports = router;
@@ -137,7 +137,7 @@ module.exports = router;
 
 Cada ruta se compone de lo siguiente:
 
-```
+```js
 router.METHOD(route, (req, res) => {
   // Función
 });
@@ -152,7 +152,7 @@ res: response, lo que se devolverá al cliente
 
 Dentro del `package.json` sustituiremos `scripts` por lo siguiente:
 
-```
+```js
 "scripts": {
   "watch": "nodemon ./start.js"
 },
@@ -166,7 +166,7 @@ Pug (anteriormente conocido como Jade) es un motor de plantilla de Node.js. con 
 
 ### Instalación
 
-```
+```console
 npm i pug
 ```
 
@@ -183,7 +183,7 @@ Desde este enlace tendras una información más detallada de como usar esta libr
 
 Crearemos una carpeta `views` y un fichero `signup.pug` dentro de ella con el siguiente código:
 
-```
+```pug
  form(action="." method="POST")
     label(for="name") Name:
     input(
@@ -216,7 +216,7 @@ Este formulario lo utilizaremos para la parte de registro dentro de la aplicaci�
 
 El siguiente formulario con el nombre de `signin.pug` que utilizaremos para la parte de inicio de sesión.
 
-```
+```pug
 form(action="." method="POST")
     label(for="email") Email:
     input(
@@ -242,17 +242,17 @@ form(action="." method="POST")
 
 En el archivo `app.js` cambiaremos el contenido por lo siguiente:
 
-```
-const express = require('express');
-const path = require('path');
-const routes = require('./routes/index');
+```js
+const express = require("express");
+const path = require("path");
+const routes = require("./routes/index");
 
 const app = express();
 
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "pug");
 
-app.use('/', routes);
+app.use("/", routes);
 
 module.exports = app;
 ```
@@ -263,7 +263,7 @@ De esta manera le estamos indicando que el <b>view engine</b> a utilizar será <
 
 En el archivo `routes/index.js` cambiaremos el contenido por lo siguiente:
 
-```
+```js
 
 const express = require('express');
 
@@ -285,16 +285,16 @@ module.exports = router;
 
 Necesitaremos crear la base de la template con la inicialización de que es un fichero HTML
 
-Por lo que craremos `layout.png` dentro de la carpeta de `views`.
+Por lo que craremos `layout.pug` dentro de la carpeta de `views`.
 
-```
+```pug
 doctype html
 html
-    head
-        title= `${title}`
+  head
+    title= `${title}`
 
-    body
-        block content
+  body
+    block content
 
 ```
 
@@ -306,7 +306,7 @@ También tendremos el bloque de content para sustituir por otros bloques que ya 
 
 Añadiremos en los archivos `signin.pug` y `signup.pug` el siguiente contenido:
 
-```
+```pug
 extends layout
 
     block content
@@ -318,7 +318,7 @@ extends layout
 
 Cambiando el contenido de nuestro archivo `routes/index.js` por esto, tendremos los titulos de manera dinámica.
 
-```
+```js
 
 const express = require('express');
 
@@ -342,7 +342,7 @@ Comenzamos con el tratamiento de un formulario desde express.
 
 Añadiremos las siguientes rutas en el archivo `routes/index.js`
 
-```
+```js
 router.post('/', (req, res) => {
   res.render('form', { title: 'Inicio de sesión' });
 });
@@ -360,13 +360,13 @@ Por defecto, la aplicación no devuelve el contenido de los inputs.
 
 Necesitamos instalar la siguiente librería para poder acceder a la respuesta.
 
-```
+```bash
 npm i body-parser
 ```
 
 Y añadiremos lo siguiente dentro de `app.js`:
 
-```
+```js
 const bodyParser = require('body-parser');
 ...
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -381,21 +381,21 @@ Si añadimos un `console.log(req.body);` dentro de una funcion de alguna ruta qu
 
 Para implementar validación a los formularios, usaremos la siguiente librería:
 
-```
+```bash
 npm i express-validator
 ```
 
 Y deberemos añadir lo siguiente al principio de `routes/index.js`
 
-```
-const { check, validationResult } = require('express-validator');
+```js
+const { check, validationResult } = require("express-validator");
 ```
 
 ### Comprobación de inputs
 
 Añadiremos el siguiente código a la ruta de registro por <b>POST</b>:
 
-```
+```js
 router.post('/signup',
   [
     check('name')
@@ -415,7 +415,7 @@ router.post('/signup',
 
 Y para la ruta de inicio de sesión por <b>POST</b>:
 
-```
+```js
 router.post('/',
   [
     check('email')
@@ -434,7 +434,7 @@ router.post('/',
 
 Ahora tendremos que añadir a las funciones utilizadas en el apartado anterior, en la parte de la funcion:
 
-```
+```js
 router.post('/signup',
   [
    ...
@@ -454,7 +454,7 @@ router.post('/signup',
   });
 ```
 
-Ahora vamos a hacer algunos cambios en nuestra plantilla `from.pug` . Lo primero que necesitamos hacer el chequear los errores y si hay mostrarlos. Vamos a mostrarlos en formato lista.
+Ahora vamos a hacer algunos cambios en nuestra plantilla `form.pug` . Lo primero que necesitamos hacer el chequear los errores y si hay mostrarlos. Vamos a mostrarlos en formato lista.
 
 ```pug
 extends layout
