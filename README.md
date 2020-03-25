@@ -453,3 +453,254 @@ router.post('/signup',
     }
   });
 ```
+
+Ahora vamos a hacer algunos cambios en nuestra plantilla `from.pug` . Lo primero que necesitamos hacer el chequear los errores y si hay mostrarlos. Vamos a mostrarlos en formato lista.
+
+```
+extends layout
+
+block content
+  if errors
+    ul
+      for error in errors
+        li= error.msg
+  ...
+```
+
+Finalmente, comprobaremos si el atributo data existe, y si es así usaremos los valores de los respectivos campos. Si no existe, inicializaremos data a un objeto vacío. De esta manera el primer render funcionará de manera correcta.
+
+```
+-data = data || {}
+```
+
+Después debemos hacer referencia al atributo con el valor del campo de la siguiente manera:
+
+```
+input(
+  type="text"
+  id="name"
+  name="name"
+  value=data.name
+)
+```
+
+Nos quedaría lo siguiente:
+
+```
+extends layout
+
+block content
+  -data = data || {}
+
+  if errors
+    ul.my-errors
+      for error in errors
+        li= error.msg
+
+  form(action="/signup" method="POST" )
+    label(for="name") Name:
+    input(
+      type="text"
+      id="name"
+      name="name"
+      value=data.name
+    )
+
+    label(for="email") Email:
+    input(
+      type="email"
+      id="email"
+      name="email"
+      value=data.email
+    )
+
+    label(for="password") Password:
+    input(
+      type="password"
+      id="password"
+      name="password"
+      value=data.password
+    )
+
+    input(
+      type="submit"
+      value="Submit"
+    )
+
+```
+
+# Interacción con la Base de Datos
+
+## Especificar los datos de conexión
+
+En nuestro caso como hemos visto más arriba vamos a usar Mongo. Para conectarnos a Mongo vamos a usar el paquete [dotenv](https://www.npmjs.com/package/dotenv). Dotenv cargará los detalles de configuranción desde el fichero de de NODE [process.env](https://nodejs.org/docs/latest/api/process.html#process_process_env)
+
+La instalacion es:
+
+```
+npm install dotenv
+```
+
+Y haremos el require de el en la parte superior de `start.js`
+
+```
+require('dotenv').config();
+```
+
+Ahora crearemos el fichero `.env`in el raiz del proyecto y escribirimos la siguiente línea de configuración de la conexión de Mongo
+
+```
+DATABASE=mongodb://localhost:27017/<dbname>
+```
+
+## Conectar con la Base de Datos
+
+Para cvonectarnos a la base de datos y hacer las operaciones sobre ella, usaremos [Moongoose](https://www.npmjs.com/package/mongoose) Moongoose es un ODM(object-document mapper) para MongoDB.
+
+Moongose nos permite tener una capa de abstracción sobre Mongo, ya que nos da una solucion basada en esquemas de modelos de datos. Moongose incluye type casting, validation, query building, business logic hooks y más.
+
+Para instalar Moongoose:
+
+```
+npm install mongoose
+```
+
+Después haremos el required dentro de `start.js``
+
+```
+const mongoose = require('mongoose');
+```
+
+y añadiremos la conexión que es algo así:
+
+```
+mongoose.connect(process.env.DATABASE, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+mongoose.connection
+  .on('open', () => {
+    console.log('Mongoose connection open');
+  })
+  .on('error', (err) => {
+    console.log(`Connection error: ${err.message}`);
+  });
+```
+
+Daros cuenta que usamos `DATABASE`como una variable que declaramos en el fichero `.env` donde especificamos la url de la base de datos.
+Así debería quedar el fichero `start.js`:
+
+```
+require('dotenv').config();
+const mongoose = require('mongoose');
+
+mongoose.connect(process.env.DATABASE, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+mongoose.connection
+  .on('open', () => {
+    console.log('Mongoose connection open');
+  })
+  .on('error', (err) => {
+    console.log(`Connection error: ${err.message}`);
+  });
+
+const app = require('./app');
+const server = app.listen(3000, () => {
+  console.log(`Express is running on port ${server.address().port}`);
+});
+```
+
+## Definiendo los esquemas de Moongoose
+
+MongoDB puede usarse sin describir que tipo de datos vas a pasarle a lo largo del tiempo. Aún así, nosotros usaremos Moongoose para interactuar con la BBDD, y todo en Moongoose empieza por los [schema](https://mongoosejs.com/docs/guide.html). En Moongoose, cada schema mapea a MongoDB la colección y define la forma del documento dentro de la colección.
+
+Vamos a crear la carpeta `models` en la raiz del proyecto y dentro de esta carpeta, crearemos un fichero llamado `User.js`.
+Añadiremos el siguiente código a `User.js`:
+
+```
+const mongoose = require("mongoose");
+
+const UserSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    trim: true
+  },
+  email: {
+    type: String,
+    trim: true
+  },
+  password: {
+    type: String,
+    trim: true
+  }
+});
+
+module.exports = mongoose.model("User", UserSchema);
+```
+
+Aquí, solo estamos definiendo el tipo de entrada del usuario. Luego compilamos el modelo a partir del esquema y lo exportamos para usarlo en cualquier parte de la aplicación.
+
+La pieza final es hacer el require del modelo en `start.js`:
+
+```
+...
+
+require('./models/Registration');
+const app = require('./app');
+
+const server = app.listen(3000, () => {
+  console.log(`Express is running on port ${server.address().port}`);
+});
+```
+
+## Guardar datos
+
+Ahora estamos listos para guardar los datos del usuario en nuestra base de datos. Empezaremos requiriendo Moongoose e importando nuestro modelo dentro del fichero `routes/indes.js`:
+
+```
+const express = require('express');
+const mongoose = require('mongoose');
+const { check, validationResult } = require('express-validator');
+
+const router = express.Router();
+const Registration = mongoose.model('Registration');
+...
+```
+
+En `routes/index.js`:
+
+```
+router.get('/registrations', (req, res) => {
+  User.find()
+    .then((users) => {
+      res.render('index', { title: 'Listing registrations', users });
+    })
+    .catch(() => { res.send('Sorry! Something went wrong.'); });
+});
+```
+
+`.find()` Nos permite buscar varios elementos en la BBDD, si le pasamos parámetros nos devuelve todos los documentos que están relacionado con ese parámetro de busqueda, sino nos devuelve todos los documentos de la colección. Como la llamada es asíncrona, usaremos `.then()` para esperar por los datos y los recibiremos como la propiedad `users`. Si no recibimos datos devolveremos `users`como un array vacío.
+En `views/index.pug` vamos a comprobar la longitud del array y si es mayor que cero mostraremos los datos, sino mostraremos el mensaje "No registrations yet"
+
+```
+extends layout
+
+block content
+  if users.length
+    table.listing-table.table-dark.table-striped
+      tr
+        th Name
+        th Email
+        th PassWord
+      each user in users
+        tr
+          td= user.name
+          td= user.email
+          td= user.password
+  else
+    p No registrations yet
+```
