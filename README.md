@@ -456,7 +456,7 @@ router.post('/signup',
 
 Ahora vamos a hacer algunos cambios en nuestra plantilla `from.pug` . Lo primero que necesitamos hacer el chequear los errores y si hay mostrarlos. Vamos a mostrarlos en formato lista.
 
-```
+```pug
 extends layout
 
 block content
@@ -469,13 +469,13 @@ block content
 
 Finalmente, comprobaremos si el atributo data existe, y si es así usaremos los valores de los respectivos campos. Si no existe, inicializaremos data a un objeto vacío. De esta manera el primer render funcionará de manera correcta.
 
-```
+```pug
 -data = data || {}
 ```
 
 Después debemos hacer referencia al atributo con el valor del campo de la siguiente manera:
 
-```
+```pug
 input(
   type="text"
   id="name"
@@ -486,7 +486,7 @@ input(
 
 Nos quedaría lo siguiente:
 
-```
+```pug
 extends layout
 
 block content
@@ -529,9 +529,9 @@ block content
 
 ```
 
-# Interacción con la Base de Datos
+## Interacción con la Base de Datos
 
-## Especificar los datos de conexión
+### Especificar los datos de conexión
 
 En nuestro caso como hemos visto más arriba vamos a usar Mongo. Para conectarnos a Mongo vamos a usar el paquete [dotenv](https://www.npmjs.com/package/dotenv). Dotenv cargará los detalles de configuranción desde el fichero de de NODE [process.env](https://nodejs.org/docs/latest/api/process.html#process_process_env)
 
@@ -543,8 +543,8 @@ npm install dotenv
 
 Y haremos el require de el en la parte superior de `start.js`
 
-```
-require('dotenv').config();
+```js
+require("dotenv").config();
 ```
 
 Ahora crearemos el fichero `.env`in el raiz del proyecto y escribirimos la siguiente línea de configuración de la conexión de Mongo
@@ -553,7 +553,7 @@ Ahora crearemos el fichero `.env`in el raiz del proyecto y escribirimos la sigui
 DATABASE=mongodb://localhost:27017/<dbname>
 ```
 
-## Conectar con la Base de Datos
+### Conectar con la Base de Datos
 
 Para cvonectarnos a la base de datos y hacer las operaciones sobre ella, usaremos [Moongoose](https://www.npmjs.com/package/mongoose) Moongoose es un ODM(object-document mapper) para MongoDB.
 
@@ -567,23 +567,23 @@ npm install mongoose
 
 Después haremos el required dentro de `start.js``
 
-```
-const mongoose = require('mongoose');
+```js
+const mongoose = require("mongoose");
 ```
 
 y añadiremos la conexión que es algo así:
 
-```
+```js
 mongoose.connect(process.env.DATABASE, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
 mongoose.connection
-  .on('open', () => {
-    console.log('Mongoose connection open');
+  .on("open", () => {
+    console.log("Mongoose connection open");
   })
-  .on('error', (err) => {
+  .on("error", err => {
     console.log(`Connection error: ${err.message}`);
   });
 ```
@@ -591,9 +591,9 @@ mongoose.connection
 Daros cuenta que usamos `DATABASE`como una variable que declaramos en el fichero `.env` donde especificamos la url de la base de datos.
 Así debería quedar el fichero `start.js`:
 
-```
-require('dotenv').config();
-const mongoose = require('mongoose');
+```js
+require("dotenv").config();
+const mongoose = require("mongoose");
 
 mongoose.connect(process.env.DATABASE, {
   useNewUrlParser: true,
@@ -601,27 +601,27 @@ mongoose.connect(process.env.DATABASE, {
 });
 
 mongoose.connection
-  .on('open', () => {
-    console.log('Mongoose connection open');
+  .on("open", () => {
+    console.log("Mongoose connection open");
   })
-  .on('error', (err) => {
+  .on("error", err => {
     console.log(`Connection error: ${err.message}`);
   });
 
-const app = require('./app');
+const app = require("./app");
 const server = app.listen(3000, () => {
   console.log(`Express is running on port ${server.address().port}`);
 });
 ```
 
-## Definiendo los esquemas de Moongoose
+### Definiendo los esquemas de Moongoose
 
 MongoDB puede usarse sin describir que tipo de datos vas a pasarle a lo largo del tiempo. Aún así, nosotros usaremos Moongoose para interactuar con la BBDD, y todo en Moongoose empieza por los [schema](https://mongoosejs.com/docs/guide.html). En Moongoose, cada schema mapea a MongoDB la colección y define la forma del documento dentro de la colección.
 
 Vamos a crear la carpeta `models` en la raiz del proyecto y dentro de esta carpeta, crearemos un fichero llamado `User.js`.
 Añadiremos el siguiente código a `User.js`:
 
-```
+```js
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
@@ -646,7 +646,7 @@ Aquí, solo estamos definiendo el tipo de entrada del usuario. Luego compilamos 
 
 La pieza final es hacer el require del modelo en `start.js`:
 
-```
+```js
 ...
 
 require('./models/Registration');
@@ -657,11 +657,11 @@ const server = app.listen(3000, () => {
 });
 ```
 
-## Guardar datos
+### Guardar datos
 
 Ahora estamos listos para guardar los datos del usuario en nuestra base de datos. Empezaremos requiriendo Moongoose e importando nuestro modelo dentro del fichero `routes/indes.js`:
 
-```
+```js
 const express = require('express');
 const mongoose = require('mongoose');
 const { check, validationResult } = require('express-validator');
@@ -673,20 +673,129 @@ const Registration = mongoose.model('Registration');
 
 En `routes/index.js`:
 
-```
-router.get('/registrations', (req, res) => {
+```js
+router.get("/registrations", (req, res) => {
   User.find()
-    .then((users) => {
-      res.render('index', { title: 'Listing registrations', users });
+    .then(users => {
+      res.render("index", { title: "Listing registrations", users });
     })
-    .catch(() => { res.send('Sorry! Something went wrong.'); });
+    .catch(() => {
+      res.send("Sorry! Something went wrong.");
+    });
 });
 ```
 
 `.find()` Nos permite buscar varios elementos en la BBDD, si le pasamos parámetros nos devuelve todos los documentos que están relacionado con ese parámetro de busqueda, sino nos devuelve todos los documentos de la colección. Como la llamada es asíncrona, usaremos `.then()` para esperar por los datos y los recibiremos como la propiedad `users`. Si no recibimos datos devolveremos `users`como un array vacío.
 En `views/index.pug` vamos a comprobar la longitud del array y si es mayor que cero mostraremos los datos, sino mostraremos el mensaje "No registrations yet"
 
+```pug
+extends layout
+
+block content
+  if users.length
+    table
+      tr
+        th Name
+        th Email
+        th PassWord
+      each user in users
+        tr
+          td= user.name
+          td= user.email
+          td= user.password
+  else
+    p No registrations yet
 ```
+
+## Static Assets en Express
+
+Vamos a darle algo de vida y de color a nuestra app y para ello vamos a utilizar [Bootstrap](https://getbootstrap.com/)
+Para porder ver ficheros, imagenes JavaScript.. desde fuera de la app Express usa la funcion static que nos premite pasar una carpeta por parámetro para hacerla visible hacia el exterior
+
+La manera más sencilla es añadir la siguiente linea a `app.js`:
+
+```js
+app.use(express.static("public"));
+```
+
+Ahora podemos cargar ficheros que esten en la carpeta `public`
+
+### Estilos con Bootstrap
+
+Crearemos la carpeta `public` en la raiz del proyecto, dentro de crearemos la carpeta `css`. Descargaremos la [versión mini de Bootstrap v4](https://getbootstrap.com/docs/4.4/getting-started/download/) y meteremos dentro de esta carpeta el fichero descomprimido `bootstrap.min.css`.
+
+Ahora añadiremos estilos a nuestras plantillas de pug
+En `layout.pug`:
+
+```pug
+doctype html
+html
+  head
+    title= `${title}`
+    link(rel='stylesheet', href='/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/css/styles.css')
+
+  body
+    div.container.listing-reg
+      h1 My Amazing App
+
+      block content
+```
+
+Hemos incluido dos css que guardamos en la carpeta public.
+
+En `signup.pug` añadiremos algunas clases de bootstrap para que quede más bonito nuentro formulario:
+
+```pug
+extends layout
+
+block content
+  -data = data || {}
+
+  if errors
+    ul.my-errors
+      for error in errors
+        li= error.msg
+
+  form(action="/signup" method="POST" class="form-registration")
+    label(for="name") Name:
+    input(
+      type="text"
+      id="name"
+      name="name"
+      class="form-control"
+      value=data.name
+    )
+
+    label(for="email") Email:
+    input(
+      type="email"
+      id="email"
+      name="email"
+      class="form-control"
+      value=data.email
+    )
+
+    label(for="password") Password:
+    input(
+      type="password"
+      id="password"
+      name="password"
+      class="form-control"
+      value=data.password
+    )
+
+    input(
+      type="submit"
+      value="Submit"
+      class="btn btn-lg btn-primary btn-block"
+    )
+
+```
+
+Ahoremos lo mismo en los demas formularios yu tambien en nuestro `index.pug`como se ve a continuación:
+
+```pug
 extends layout
 
 block content
@@ -702,5 +811,80 @@ block content
           td= user.email
           td= user.password
   else
-    p No registrations yet
+    p No registrations yet :(
+```
+
+Finalmente, crearemos el fichero `style.css` en la carpeta `css` y añadiremos lo siguiente:
+
+```css
+body {
+  padding: 40px 10px;
+  background-color: #eee;
+}
+
+.listing-reg h1 {
+  text-align: center;
+  margin: 0 0 2rem;
+}
+
+/* css for registration form and errors*/
+.form-registration {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+
+.form-registration {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.form-registration input {
+  width: 100%;
+  margin: 0px 0 10px;
+}
+
+.form-registration .btn {
+  flex: 1 0 100%;
+}
+
+.my-errors {
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+  color: #333;
+  font-size: 1.2rem;
+  display: table;
+}
+
+.my-errors li {
+  margin: 0 0 1rem;
+}
+
+.my-errors li:before {
+  content: "! Error : ";
+  color: #f00;
+  font-weight: bold;
+}
+
+/* Styles for listing table */
+.listing-table {
+  width: 100%;
+}
+
+.listing-table th,
+.listing-table td {
+  padding: 10px;
+  border-bottom: 1px solid #666;
+}
+
+.listing-table th {
+  background: #000;
+  color: #fff;
+}
+
+.listing-table td:first-child,
+.listing-table th:first-child {
+  border-right: 1px solid #666;
+}
 ```
