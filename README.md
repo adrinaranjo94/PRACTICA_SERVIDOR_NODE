@@ -11,11 +11,11 @@
 
 En caso de tenerlo instalado comprobaremos la versión de cada uno:
 
-```bash
+```console
 node -v
 ```
 
-```bash
+```console
 npm -v
 ```
 
@@ -23,7 +23,7 @@ npm -v
 
 Para comprobar su versión:
 
-```bash
+```console
 mongo --version
 ```
 
@@ -33,7 +33,7 @@ Usaremos mongodb de manera local. Por lo que instalaremos el programa MongoDB Co
 
 Para inicializarlo:
 
-```bash
+```console
 mongod
 ```
 
@@ -43,7 +43,7 @@ Despúes entraremos a MongoDB Compass y nos conectaremos a `localhost` y al puer
 
 Crearemos una carpeta llamada `servidor-node`. Desde ella lanzaremos el siguiente comando desde el terminal:
 
-```bash
+```console
 npm init -y
 ```
 
@@ -53,7 +53,7 @@ De esta manera generará un `package.json` de manera automática.
 
 Express es el framework que usaremos para la parte de backend de la mano de Node.js. Es el más popular de todos los frameworks dentro de Node.js.
 
-```bash
+```console
 //Manera tradicional
 npm install express
 
@@ -65,7 +65,7 @@ npm i express
 
 Esta herramienta nos permitirá reiniciar la aplicación cada vez que se detecte algun cambio en los archivos. Por lo que lo añadiremos en las dependencias de desarrollo para que no se use en producción
 
-```bash
+```console
 npm i --save-dev nodemon
 ```
 
@@ -360,7 +360,7 @@ Por defecto, la aplicación no devuelve el contenido de los inputs.
 
 Necesitamos instalar la siguiente librería para poder acceder a la respuesta.
 
-```bash
+```console
 npm i body-parser
 ```
 
@@ -381,7 +381,7 @@ Si añadimos un `console.log(req.body);` dentro de una funcion de alguna ruta qu
 
 Para implementar validación a los formularios, usaremos la siguiente librería:
 
-```bash
+```console
 npm i express-validator
 ```
 
