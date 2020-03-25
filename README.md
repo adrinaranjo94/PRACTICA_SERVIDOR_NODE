@@ -2,8 +2,8 @@
 
 ## Desarrollado por
 
-- Adrian Naranjo
-- Sergio Redondo
+- [Adrian Naranjo](https://www.linkedin.com/in/adrian-naranjo/)
+- [Sergio Redondo](https://www.linkedin.com/in/sergio-redondo-montes/)
 
 ## SETUP PREVIO
 
