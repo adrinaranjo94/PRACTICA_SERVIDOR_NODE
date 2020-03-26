@@ -914,6 +914,46 @@ block content
 
 ```
 
+En `signin.pug` añadiremos algunas clases de bootstrap para que quede más bonito nuentro formulario:
+
+```pug
+extends layout
+
+block content
+  -data = data || {}
+
+  if errors
+    ul.my-errors
+      for error in errors
+        li= error.msg
+
+  form(action="." method="POST" class="form-registration")
+    label(for="email") Email:
+    input(
+      type="email"
+      id="email"
+      name="email"
+      class="form-control"
+      value=data.email
+    )
+
+    label(for="password") Password:
+    input(
+      type="password"
+      id="password"
+      name="password"
+      class="form-control"
+      value=data.password
+    )
+
+    input(
+      type="submit"
+      value="Submit"
+      class="btn btn-lg btn-primary btn-block"
+    )
+
+```
+
 Ahoremos lo mismo en los demas formularios yu tambien en nuestro `index.pug`como se ve a continuación:
 
 ```pug
