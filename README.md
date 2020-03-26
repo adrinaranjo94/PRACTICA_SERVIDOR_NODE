@@ -445,7 +445,7 @@ router.post('/signup',
     if (errors.isEmpty()) {
       res.send('El registro ha sido validado correctamente');
     } else {
-      res.render('form', {
+      res.render('signup', {
         title: 'Registration form',
         errors: errors.array(),
         data: req.body,
@@ -454,7 +454,7 @@ router.post('/signup',
   });
 ```
 
-Ahora vamos a hacer algunos cambios en nuestra plantilla `form.pug` . Lo primero que necesitamos hacer el chequear los errores y si hay mostrarlos. Vamos a mostrarlos en formato lista.
+Ahora vamos a hacer algunos cambios en nuestra plantilla `signup.pug` . Lo primero que necesitamos hacer el chequear los errores y si hay mostrarlos. Vamos a mostrarlos en formato lista.
 
 ```pug
 extends layout
