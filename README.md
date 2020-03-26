@@ -667,9 +667,130 @@ const mongoose = require('mongoose');
 const { check, validationResult } = require('express-validator');
 
 const router = express.Router();
-const Registration = mongoose.model('Registration');
+const User = mongoose.model('User');
 ...
 ```
+
+#### Signup
+
+En `routes/index.js`:
+
+```js
+router.post(
+  "/signup",
+  [
+    check("name")
+      .isLength({ min: 1 })
+      .withMessage("Please enter a name"),
+    check("email")
+      .isLength({ min: 1 })
+      .withMessage("Please enter an email"),
+    check("password")
+      .isLength({ min: 5 })
+      .withMessage("Please enter a password")
+  ],
+  (req, res) => {
+    errors = validationResult(req);
+
+    if (errors.isEmpty()) {
+      const user = new User(req.body);
+      user
+        .save()
+        .then(() => {
+          res.render("signin", {
+            title: "Login form",
+            errors: errors.array(),
+            data: req.body
+          });
+        })
+        .catch(err => {
+          console.log(err);
+          res.send("Sorry! Something went wrong.");
+        });
+    } else {
+      res.render("signup", {
+        title: "Register form",
+        errors: errors.array(),
+        data: req.body
+      });
+    }
+  }
+);
+```
+
+En esta funcion lo que hemos hecho es convertir lo que llega del formulario a un tipo `User` y ese objeto guardarlo con la funcion `.save()` de moongoose.
+Usaremos la funcion `.then()`para esperar a que el save nos devuelva algo y una vez nos devuelva el okey procedemos a pasar a la pantalla de login pasandole por parámetro los datos del form para que ya esten seteados.
+`.cath()`lo usamos para capturar cualquier error que nos devuelva el `.save()`.
+Si no hemos tenido ningun error veremos como en mongo nos aparece el documento dentro de la colección `users`.
+
+#### Signin
+
+En `routes/index.js``
+
+```js
+router.post(
+  "/",
+  [
+    check("email")
+      .isLength({ min: 1 })
+      .withMessage("Please enter an email"),
+    check("password")
+      .isLength({ min: 5 })
+      .withMessage("Please enter a password")
+  ],
+  (req, res) => {
+    let errors = validationResult(req);
+
+    if (errors.isEmpty()) {
+      var query = User.findOne({
+        email: req.body.email,
+        password: req.body.password
+      });
+
+      query.exec(function(err, user) {
+        if (err) return handleError(err);
+        if (user != null) {
+          User.find({}).exec(function(err, users) {
+            var userMap = [];
+            users.forEach(function(user) {
+              const tmpUser = new User({
+                name: user.name,
+                email: user.email,
+                password: user.password
+              });
+              userMap.push(tmpUser);
+            });
+            res.render("index", {
+              title: "Listing registrations",
+              errors: errors.array(),
+              users: userMap
+            });
+          });
+        } else {
+          errors = errors.array();
+          errors.push({ msg: "User not valid." });
+          res.render("signin", {
+            title: "Login form",
+            errors: errors,
+            data: req.body
+          });
+        }
+      });
+    } else {
+      res.render("signin", {
+        title: "Login form",
+        errors: errors.array(),
+        data: req.body
+      });
+    }
+  }
+);
+```
+
+En `signin` vamos a hacer varias cosas. La primera va a ser comprobar si no hay errores de validación, de ser así procedemos a crear una query de busqueda de un usuario mediante el método `findOne()`al que le pasare el objeto user. Ejecutamos la query y si la busqueda no nos devuelve null quiere decir que ha encontrado el usuario registrado. Una vez que hemos comprobado que el usuario ya estaba registrado hacemos login y vamos a hacer una busqueda de todos los usuarios para enviarlo a la ventana de registrados donde mostraremos todos los usuarios.
+En caso de cualquier error mandaremos al usuario de vuelta al login.
+
+### Reciviendo datos de la Base de Datos
 
 En `routes/index.js`:
 
